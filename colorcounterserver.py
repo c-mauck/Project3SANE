@@ -26,15 +26,15 @@ class FlaskThread(QThread):
         self.activeApp.run(port=PORT, host="0.0.0.0")
 
     @app.route("/")
-    def home(self):
+    def home():
         return "Hello! This is the main page <h1>Hello<h1>"
 
     @app.route("/<name>")
-    def entry(self, name):
+    def entry(name):
         return "Hello! This is the main page <h1>%s<h1>" % name
 
     @app.route("/api/counter", methods=['POST'])
-    def server_count_increment(self):
+    def server_count_increment():
         """Method to post and adjust the internal counter"""
         global counter
         content = flask.request.json
@@ -45,7 +45,7 @@ class FlaskThread(QThread):
         return flask.jsonify({'counter': counter})
 
     @app.route("/api/counter", methods=['GET'])
-    def server_get_count(self):
+    def server_get_count():
         global counter
         return flask.jsonify({'counter': counter})
 
