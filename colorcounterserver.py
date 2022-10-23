@@ -8,28 +8,21 @@ import sys
 PORT = 5000
 counter = 0
 ROOT_URL = 'http://localhost:{}'.format(PORT)
-flaskApp = Flask(__name__)
 
 
 class FlaskThread(QThread):
     app = flask.Flask(__name__)
-    #counter = 0
-
-    def __init__(self, application):
-        QThread.__init__(self)
-        global counter
-        # self._run_flag = True
-        self.activeApp = application
+    app.config["DEBUG"] = False
 
     def run(self):
         global PORT
-        self.activeApp.run(port=PORT, host="0.0.0.0")
+        self.app.run(port=PORT, host="0.0.0.0")
 
-    @app.route("/")
-    def home():
+    @app.route("/", methods=['GET'])
+    def Home():
         return "Hello! This is the main page <h1>Hello<h1>"
 
-    @app.route("/<name>")
+    @app.route("/<name>", methods=['GET'])
     def entry(name):
         return "Hello! This is the main page <h1>%s<h1>" % name
 
@@ -42,6 +35,7 @@ class FlaskThread(QThread):
         print(f"Number to add: {add}")
         counter += add
         print(f"Counter is now: {counter}")
+        a.setcountlabel(counter)
         return flask.jsonify({'counter': counter})
 
     @app.route("/api/counter", methods=['GET'])
@@ -80,8 +74,9 @@ class App(QWidget):
 
 if __name__ == "__main__":
     qtApp = QApplication(sys.argv)
-    flaskThread = FlaskThread(flaskApp)
-    flaskThread.start()
     a = App()
+    flaskThread = FlaskThread(a)
+    flaskThread.start()
+    a.textLabel.setText(str(counter))
     a.show()
     sys.exit(qtApp.exec_())

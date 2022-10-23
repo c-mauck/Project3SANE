@@ -1,4 +1,5 @@
 import requests
+import time
 import json
 
 # This works, it's necessary that the URL's match
@@ -37,8 +38,12 @@ def getpage():
 
 
 if __name__ == "__main__":
+    time.sleep(10)
     post2count(1)
+    time.sleep(1)
     post2count(3)
+    time.sleep(3)
     post2count(-2)
+    time.sleep(3)
     getcount()
 
