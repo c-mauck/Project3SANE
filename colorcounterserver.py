@@ -44,6 +44,15 @@ class FlaskThread(QThread):
         return flask.jsonify({'counter': counter})
 
 
+    @app.route("/api/set_text", methods=['POST'])
+    def setLabel2():
+        content = flask.request.json
+        strtopass = content['message']
+        print(strtopass)
+        a.settextlabel(strtopass)
+
+
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -53,23 +62,31 @@ class App(QWidget):
         # create the label that holds the image
         self.image_label = QLabel(self)
         # create a text label
+
         self.textLabel = QLabel('Demo')
+        self.textLabel2 = QLabel('Demo2')
 
         # create a vertical box layout and add the two labels
         vbox = QVBoxLayout()
         vbox.addWidget(self.image_label)
         vbox.addWidget(self.textLabel)
+        vbox.addWidget(self.textLabel2)
         # set the vbox layout as the widgets layout
         self.setLayout(vbox)
         # create a grey pixmap
         grey = QPixmap(width, height)
         grey.fill(QColor('darkGray'))
         # set the image to the grey pixmap
+        self.image_label.setText("Text message")
         self.image_label.setPixmap(grey)
 
     def setcountlabel(self, num):
         numtext = str(num)
         self.textLabel.setText("Counter: " + numtext)
+
+    def settextlabel(self, string):
+        strtext = str(string)
+        self.textLabel2.setText(strtext)
 
 
 if __name__ == "__main__":
