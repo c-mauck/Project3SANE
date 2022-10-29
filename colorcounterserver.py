@@ -43,7 +43,6 @@ class FlaskThread(QThread):
         global counter
         return flask.jsonify({'counter': counter})
 
-
     @app.route("/api/set_text", methods=['POST'])
     def setLabel2():
         content = flask.request.json
@@ -51,6 +50,13 @@ class FlaskThread(QThread):
         print(strtopass)
         a.settextlabel(strtopass)
 
+    @app.route("/api/send_feedback", methods=['POST'])
+    def storeFeedback():
+        content = flask.request.json
+        identifier = content['id']
+        strtopass = content['message']
+        print(f"{identifier} says: \n{strtopass}")
+        return
 
 
 class App(QWidget):
