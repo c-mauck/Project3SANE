@@ -65,7 +65,6 @@ class App(QWidget):
     speechMax = 300
     speechMid = 240
     speechMin = 120
-    runningTime = 0
 
     def __init__(self):
         super().__init__()
@@ -92,9 +91,7 @@ class App(QWidget):
         # set the image to the grey pixmap
         self.image_label.setText("Text message")
         self.image_label.setPixmap(grey)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.showTime)
-        self.timer.start()
+        self.startTimer()
 
     def setcountlabel(self, num):
         numtext = str(num)
@@ -104,12 +101,18 @@ class App(QWidget):
         strtext = str(string)
         self.textLabel2.setText(strtext)
 
-    def showTime(self):
-        t = time.localtime()
-        current_time = time.strftime("%H:%M:%S", t)
+    def timer_timeout(self):
+        self.running_time += 1
+        num = self.running_time
+        seconds = num % 60
+        minutes = (num - (num % 60))/60
+        current_time = ("Timer: " + str(minutes) + ":" + str(seconds))
         self.settextlabel(current_time)
 
     def startTimer(self):
+        self.timer = QTimer(self)
+        self.running_time = 0
+        self.timer.timeout.connect(self.timer_timeout)
         self.timer.start(1000)
 
     def endTimer(self):
