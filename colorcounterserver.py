@@ -117,12 +117,12 @@ class App(QWidget):
         elif num < self.speechMin:
             print("undertime")
 
-        current_time = ("Timer: " + str(minutes) + ":" + str(seconds))
+        current_time = ("Timer: " + str(int(minutes)) + ":" + str(seconds))
         self.settextlabel(current_time)
 
     def startTimer(self):
         self.timer = QTimer(self)
-        self.running_time = 0
+        self.running_time = 115
         self.timer.timeout.connect(self.timer_timeout)
         self.timer.start(1000)
 
