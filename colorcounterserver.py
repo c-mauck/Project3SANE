@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QColor
+from PyQt5 import uic
 from PyQt5.QtCore import QThread, QTimer
 import flask
 from flask import Flask
@@ -64,41 +65,48 @@ class FlaskThread(QThread):
 class App(QWidget):
     def __init__(self):
         super().__init__()
+        # image_label
+        # textLabel ('Demo')
+        # textLabel2 ('Demo')
+        self.UI = uic.loadUi("serverUi.ui")
         self.setWindowTitle("Qt static label demo")
         width = 640
         height = 480
         self.speechMax = 300
         self.speechMid = 240
         self.speechMin = 120
+        self.timer_BGColor = "rgb(255,0,255);"
+        self.timer_FGColor = "rgb(0,0,0);"
+        self.UI.lblOutput.setStyleSheet("QLabel {background-color :" + self.timer_BGColor + "color : " + self.timer_FGColor + "}")
         # create the label that holds the image
-        self.image_label = QLabel(self)
+        #self.image_label = QLabel(self)
         # create a text label
 
-        self.textLabel = QLabel('Demo')
-        self.textLabel2 = QLabel('Demo2')
+        #self.textLabel = QLabel('Demo')
+        #self.textLabel2 = QLabel('Demo2')
 
         # create a vertical box layout and add the two labels
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.image_label)
-        vbox.addWidget(self.textLabel)
-        vbox.addWidget(self.textLabel2)
+        #vbox = QVBoxLayout()
+        #vbox.addWidget(self.image_label)
+        #vbox.addWidget(self.textLabel)
+        #vbox.addWidget(self.textLabel2)
         # set the vbox layout as the widgets layout
-        self.setLayout(vbox)
+        #self.setLayout(vbox)
         # create a grey pixmap
         grey = QPixmap(width, height)
         grey.fill(QColor('darkGray'))
         # set the image to the grey pixmap
-        self.image_label.setText("Text message")
-        self.image_label.setPixmap(grey)
+        self.UI.image_label.setText("Text message")
+        self.UI.image_label.setPixmap(grey)
         self.startTimer()
 
     def setcountlabel(self, num):
         numtext = str(num)
-        self.textLabel.setText("Counter: " + numtext)
+        self.UI.textLabel.setText("Counter: " + numtext)
 
     def settextlabel(self, string):
         strtext = str(string)
-        self.textLabel2.setText(strtext)
+        self.UI.textLabel2.setText(strtext)
 
     def timer_timeout(self):
         self.running_time += 1
@@ -108,11 +116,12 @@ class App(QWidget):
             minutes = (num - (num % 60))/60
         else:
             minutes = 0
-        if num >= self.speechMax:
+        if num == self.speechMax:
             print("overtime")
-        elif num >= self.speechMid:
+            #self.timer_BGColor
+        elif num == self.speechMid:
             print("At time")
-        elif num >= self.speechMin:
+        elif num == self.speechMin:
             print("In time")
         elif num < self.speechMin:
             print("undertime")
@@ -122,7 +131,7 @@ class App(QWidget):
 
     def startTimer(self):
         self.timer = QTimer(self)
-        self.running_time = 115
+        self.running_time = 0
         self.timer.timeout.connect(self.timer_timeout)
         self.timer.start(1000)
 
@@ -135,6 +144,6 @@ if __name__ == "__main__":
     a = App()
     flaskThread = FlaskThread(a)
     flaskThread.start()
-    a.textLabel.setText(str(counter))
-    a.show()
+    a.UI.textLabel.setText(str(counter))
+    a.UI.show()
     sys.exit(qtApp.exec_())
