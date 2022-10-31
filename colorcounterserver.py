@@ -22,7 +22,7 @@ class FlaskThread(QThread):
 
     @app.route("/", methods=['GET'])
     def Home():
-        return "Hello! This is the main page <h1>Hello<h1>"
+        return flask.jsonify({"connection":"successful"})
 
     @app.route("/<name>", methods=['GET'])
     def entry(name):
@@ -65,39 +65,23 @@ class FlaskThread(QThread):
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        # image_label
-        # textLabel ('Demo')
-        # textLabel2 ('Demo')
         self.UI = uic.loadUi("serverUi.ui")
-        self.setWindowTitle("Qt static label demo")
         width = 640
         height = 480
         self.speechMax = 300
         self.speechMid = 240
         self.speechMin = 120
-        self.timer_BGColor = "rgb(255,0,255);"
+        self.timer_BGColor = "rgb(255,255,255);"
         self.timer_FGColor = "rgb(0,0,0);"
-        self.UI.lblOutput.setStyleSheet("QLabel {background-color :" + self.timer_BGColor + "color : " + self.timer_FGColor + "}")
-        # create the label that holds the image
-        #self.image_label = QLabel(self)
-        # create a text label
-
-        #self.textLabel = QLabel('Demo')
-        #self.textLabel2 = QLabel('Demo2')
-
-        # create a vertical box layout and add the two labels
-        #vbox = QVBoxLayout()
-        #vbox.addWidget(self.image_label)
-        #vbox.addWidget(self.textLabel)
-        #vbox.addWidget(self.textLabel2)
-        # set the vbox layout as the widgets layout
-        #self.setLayout(vbox)
+        self.UI.textLabel2.setStyleSheet(
+            "QLabel {background-color :" + self.timer_BGColor + "color : " + self.timer_FGColor + "}")
         # create a grey pixmap
         grey = QPixmap(width, height)
         grey.fill(QColor('darkGray'))
         # set the image to the grey pixmap
         self.UI.image_label.setText("Text message")
         self.UI.image_label.setPixmap(grey)
+        self.UI.stopButton.clicked.connect(self.end_speech)
         self.startTimer()
 
     def setcountlabel(self, num):
@@ -107,6 +91,19 @@ class App(QWidget):
     def settextlabel(self, string):
         strtext = str(string)
         self.UI.textLabel2.setText(strtext)
+
+    def start_speech(self):
+        print("Speech is started")
+
+    def end_speech(self):
+        print("Speech has ended")
+        new_file = input("File name: ")
+        speechandname = input ("Speech title and speaker name: ")
+        f = open((new_file + ".txt"), "w+")
+        f.write(speechandname + "\r\n")
+        f.write("Final " + self.UI.textLabel2.getText())
+        f.close()
+        self.endTimer()
 
     def timer_timeout(self):
         self.running_time += 1
@@ -118,12 +115,25 @@ class App(QWidget):
             minutes = 0
         if num == self.speechMax:
             print("overtime")
-            #self.timer_BGColor
+            self.timer_BGColor = "rgb(255,0,0);"
+            self.timer_FGColor = "rgb(0,0,0);"
+            self.UI.textLabel2.setStyleSheet(
+                "QLabel {background-color :" + self.timer_BGColor + "color : " + self.timer_FGColor + "}")
+        elif num == (self.speechMax - 10):
+            self.UI.textLabel2.setStyleSheet("QLabel {font-weight:bold;}")
         elif num == self.speechMid:
             print("At time")
+            self.timer_BGColor = "rgb(255,255,0);"
+            self.timer_FGColor = "rgb(0,0,0);"
+            self.UI.textLabel2.setStyleSheet(
+                "QLabel {background-color :" + self.timer_BGColor + "color : " + self.timer_FGColor + "}")
         elif num == self.speechMin:
             print("In time")
-        elif num < self.speechMin:
+            self.timer_BGColor = "rgb(0,255,0);"
+            self.timer_FGColor = "rgb(0,0,0);"
+            self.UI.textLabel2.setStyleSheet(
+                "QLabel {background-color :" + self.timer_BGColor + "color : " + self.timer_FGColor + "}")
+        elif num == self.speechMin:
             print("undertime")
 
         current_time = ("Timer: " + str(int(minutes)) + ":" + str(seconds))
