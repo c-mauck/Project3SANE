@@ -62,15 +62,14 @@ class FlaskThread(QThread):
 
 
 class App(QWidget):
-    speechMax = 300
-    speechMid = 240
-    speechMin = 120
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Qt static label demo")
         width = 640
         height = 480
+        self.speechMax = 300
+        self.speechMid = 240
+        self.speechMin = 120
         # create the label that holds the image
         self.image_label = QLabel(self)
         # create a text label
@@ -105,7 +104,19 @@ class App(QWidget):
         self.running_time += 1
         num = self.running_time
         seconds = num % 60
-        minutes = (num - (num % 60))/60
+        if num > 60:
+            minutes = (num - (num % 60))/60
+        else:
+            minutes = 0
+        if num >= self.speechMax:
+            print("overtime")
+        elif num >= self.speechMid:
+            print("At time")
+        elif num >= self.speechMin:
+            print("In time")
+        elif num < self.speechMin:
+            print("undertime")
+
         current_time = ("Timer: " + str(minutes) + ":" + str(seconds))
         self.settextlabel(current_time)
 
