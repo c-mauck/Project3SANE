@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QColor
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, QTimer
 import flask
 from flask import Flask
 import sys
-
+import time
 
 PORT = 5000
 counter = 0
@@ -62,6 +62,11 @@ class FlaskThread(QThread):
 
 
 class App(QWidget):
+    speechMax = 300
+    speechMid = 240
+    speechMin = 120
+    runningTime = 0
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Qt static label demo")
@@ -87,6 +92,9 @@ class App(QWidget):
         # set the image to the grey pixmap
         self.image_label.setText("Text message")
         self.image_label.setPixmap(grey)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.showTime)
+        self.timer.start()
 
     def setcountlabel(self, num):
         numtext = str(num)
@@ -95,6 +103,17 @@ class App(QWidget):
     def settextlabel(self, string):
         strtext = str(string)
         self.textLabel2.setText(strtext)
+
+    def showTime(self):
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        self.settextlabel(current_time)
+
+    def startTimer(self):
+        self.timer.start(1000)
+
+    def endTimer(self):
+        self.timer.stop()
 
 
 if __name__ == "__main__":

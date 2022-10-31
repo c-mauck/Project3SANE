@@ -57,6 +57,8 @@ def send_feedback():
             print("An Error Connecting to the API occurred:")
             print(repr(errc))
 
+#   This is to make a connection to the server via entering an IP
+#def make_connection
 
 App = QtWidgets.QApplication([])
 UI = uic.loadUi("testUi.ui")
