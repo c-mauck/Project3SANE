@@ -6,6 +6,7 @@ import flask
 from flask import Flask
 import sys
 import time
+import json
 
 PORT = 5000
 counter = 0
@@ -58,11 +59,15 @@ class FlaskThread(QThread):
         content = flask.request.json
         identifier = content['id']
         strtopass = content['message']
-        print(f"{identifier} says: \n{strtopass}")
+        App.feedback.append({identifier: strtopass})
+        print("Printing feedback:")
+        print(App.feedback)
         return flask.jsonify({'id': identifier, 'message': strtopass})
 
 
 class App(QWidget):
+    feedback = [{"Default0": "You are cool"}, {"Default2": "I like your face"}]
+
     def __init__(self):
         super().__init__()
         self.UI = uic.loadUi("serverUi.ui")
@@ -97,11 +102,14 @@ class App(QWidget):
 
     def end_speech(self):
         print("Speech has ended")
-        new_file = input("File name: ")
-        speechandname = input ("Speech title and speaker name: ")
+        new_file = "speech"
+        speechandname = "Speech title and speaker name"
         f = open((new_file + ".txt"), "w+")
         f.write(speechandname + "\r\n")
-        f.write("Final " + self.UI.textLabel2.getText())
+        f.write("Final " + self.UI.textLabel2.text() + "\n")
+        f.write("======= Feedback =======\n")
+        output = (json.dumps(self.feedback))
+        f.write(output)
         f.close()
         self.endTimer()
 
