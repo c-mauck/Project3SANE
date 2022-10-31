@@ -14,7 +14,7 @@ def increment_count():
     req = requests.post(f'http://{ip}:5000/api/counter', json={"add": 1})
     if req.ok:
         print(req.json())
-    #else:
+    else:
         print("Error: " + str(req.status_code))
 
 
@@ -48,7 +48,7 @@ def send_feedback():
         feedback = UI.lineEdit.text()
         UI.lineEdit.clear()
         try:
-            r = requests.post('http://127.0.0.1:5000/api/send_feedback', json={"message": feedback, "id": clientID})
+            r = requests.post('http://127.0.0.1:5000/api/send_feedback', json={"message": feedback, "id": "User1"})
             if r.ok:
                 print(r.json())
             else:
@@ -64,6 +64,7 @@ UI = uic.loadUi("testUi.ui")
 
 UI.decrementButton.clicked.connect(decrement_count)
 UI.incrementButton.clicked.connect(increment_count)
+UI.label_status.setText("this is a thing")
 UI.sendButton.clicked.connect(send_feedback)
 
 UI.show()

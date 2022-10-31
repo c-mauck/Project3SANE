@@ -5,6 +5,7 @@ import flask
 from flask import Flask
 import sys
 
+
 PORT = 5000
 counter = 0
 ROOT_URL = 'http://localhost:{}'.format(PORT)
@@ -49,6 +50,7 @@ class FlaskThread(QThread):
         strtopass = content['message']
         print(strtopass)
         a.settextlabel(strtopass)
+        return flask.jsonify({'message': strtopass})
 
     @app.route("/api/send_feedback", methods=['POST'])
     def storeFeedback():
@@ -56,7 +58,7 @@ class FlaskThread(QThread):
         identifier = content['id']
         strtopass = content['message']
         print(f"{identifier} says: \n{strtopass}")
-        return
+        return flask.jsonify({'id': identifier, 'message': strtopass})
 
 
 class App(QWidget):
