@@ -5,7 +5,7 @@ from PyQt5.QtCore import QThread, QTimer
 import flask
 from flask import Flask
 import sys
-import time
+import time, datetime
 import json
 
 PORT = 5000
@@ -87,23 +87,25 @@ class App(QWidget):
         self.UI.image_label.setText("Text message")
         self.UI.image_label.setPixmap(grey)
         self.UI.stopButton.clicked.connect(self.end_speech)
-        self.startTimer()
 
     def setcountlabel(self, num):
         numtext = str(num)
-        self.UI.textLabel.setText("Counter: " + numtext)
+        self.UI.textLabel.setText("Grammar: " + numtext)
 
     def settextlabel(self, string):
         strtext = str(string)
         self.UI.textLabel2.setText(strtext)
 
     def start_speech(self):
+        self.start_timer()
         print("Speech is started")
 
     def end_speech(self):
+        now = datetime.datetime.now()
         print("Speech has ended")
         new_file = "speech"
         speechandname = "Speech title and speaker name"
+        dt_string = now.strftime("%b-%d-%Y %H:%M:%S")
         f = open((new_file + ".txt"), "w+")
         f.write(speechandname + "\r\n")
         f.write("Final " + self.UI.textLabel2.text() + "\n")
@@ -144,16 +146,19 @@ class App(QWidget):
         elif num == self.speechMin:
             print("undertime")
 
-        current_time = ("Timer: " + str(int(minutes)) + ":" + str(seconds))
+        if seconds < 10:
+            current_time = ("Timer: " + str(int(minutes)) + ":0" + str(seconds))
+        else:
+            current_time = ("Timer: " + str(int(minutes)) + ":" + str(seconds))
         self.settextlabel(current_time)
 
-    def startTimer(self):
+    def start_timer(self):
         self.timer = QTimer(self)
         self.running_time = 0
         self.timer.timeout.connect(self.timer_timeout)
         self.timer.start(1000)
 
-    def endTimer(self):
+    def end_timer(self):
         self.timer.stop()
 
 

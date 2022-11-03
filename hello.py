@@ -1,7 +1,7 @@
-from flask import Flask
-app = Flask(__name__)
+import datetime
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!\r\nPlease don\'t die!!'
+now = datetime.datetime.now()
+dt_string = now.strftime("%b-%d-%Y %H:%M:%S")
+print("date and time =", dt_string)
+
