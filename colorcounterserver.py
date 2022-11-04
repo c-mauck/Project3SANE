@@ -125,14 +125,15 @@ class App(QWidget):
             text = self.UI.min_time_edit.text()
             print(text)
             seconds = self.get_sec(text)
+            print("Value stored: " + str(seconds))
             self.speechMin = seconds
             self.UI.min_time_edit.clear()
 
     def get_sec(self, time_str):
         """Get seconds from time."""
-        h, m, s = time_str.split(':')
-        print(int(datetime.timedelta(hours=int(h), minutes=int(m), seconds=int(s)).total_seconds()))
-        return int(datetime.timedelta(hours=int(h), minutes=int(m), seconds=int(s)).total_seconds())
+        m, s = time_str.split(':')
+        print("Seconds parsed: " + str(datetime.timedelta(hours=0, minutes=int(m), seconds=int(s)).total_seconds()))
+        return int(datetime.timedelta(hours=0, minutes=int(m), seconds=int(s)).total_seconds())
 
     def timer_timeout(self):
         self.running_time += 1
