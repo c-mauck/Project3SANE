@@ -125,9 +125,23 @@ class App(QWidget):
             text = self.UI.min_time_edit.text()
             print(text)
             seconds = self.get_sec(text)
-            print("Value stored: " + str(seconds))
+            print("Min stored: " + str(seconds))
             self.speechMin = seconds
             self.UI.min_time_edit.clear()
+        if len(self.UI.mid_time_edit.text()) > 0:
+            text = self.UI.mid_time_edit.text()
+            print(text)
+            seconds = self.get_sec(text)
+            print("Mid stored: " + str(seconds))
+            self.speechMid = seconds
+            self.UI.mid_time_edit.clear()
+        if len(self.UI.max_time_edit.text()) > 0:
+            text = self.UI.max_time_edit.text()
+            print(text)
+            seconds = self.get_sec(text)
+            print("Max stored: " + str(seconds))
+            self.speechMax = seconds
+            self.UI.max_time_edit.clear()
 
     def get_sec(self, time_str):
         """Get seconds from time."""
