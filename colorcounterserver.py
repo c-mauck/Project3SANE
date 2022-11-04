@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtGui import QPixmap, QColor
-from PyQt5 import uic
+from PyQt5 import uic, QtGui
 from PyQt5.QtCore import QThread, QTimer, pyqtSignal, pyqtSlot, Qt
 import flask
 import json
@@ -77,6 +77,46 @@ class FlaskThread(QThread):
         self.quit()
 
 
+class FPS:
+    def __init__(self):
+        # store the start time, end time, and total number of frames
+        # that were examined between the start and end intervals
+        self._start = None
+        self._end = None
+        self._numFrames = 0
+
+    def get_num_frames(self):
+        """Returns the numbers of frames counted thus far"""
+        return self._numFrames
+
+    def start(self):
+        # start the timer
+        self._numFrames = 0
+        self._start = datetime.datetime.now()
+        return self
+
+    def stop(self):
+        # stop the timer
+        self._end = datetime.datetime.now()
+
+    def update(self):
+        # increment the total number of frames examined during the
+        # start and end intervals
+        self._numFrames += 1
+
+    def elapsed(self):
+        # return the total number of seconds between the start and
+        # end interval
+        return (self._end - self._start).total_seconds()
+
+    def fps(self):
+        # compute the (approximate) frames per second
+        return self._numFrames / self.elapsed()
+
+
+updated = True
+
+
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
     detector = FER()
@@ -147,6 +187,16 @@ class App(QWidget):
         self.UI.startButton.clicked.connect(self.start_speech)
         self.UI.pushButton.clicked.connect(self.change_set_times)
 
+        # create the video capture thread
+        self.thread = VideoThread(self)
+        # create an FPS counter
+        self.num_frames = 20
+        self.fps = FPS().start()
+        # connect its signal to the update_image slot
+        self.thread.change_pixmap_signal.connect(self.update_image)
+        # start the thread
+        self.thread.start()
+
     def setFlask(self, flask):
         self.f_thread = flask
 
@@ -161,6 +211,21 @@ class App(QWidget):
     def start_speech(self):
         self.start_timer()
         print("Speech is started")
+
+    #DEBUG
+    def new_emotion(self, string):
+        if string == self.emotion_label.text():
+            return False
+        else:
+            return True
+
+    def set_emotion_label(self, string):
+        print(string)
+        # self.emotion_label.setText(string)
+
+    def set_fps_label(self, string):
+        print(string)
+        # self.fps_label.setText(string)
 
     def end_speech(self):
         now = datetime.datetime.now()
