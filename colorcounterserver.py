@@ -1,12 +1,14 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QColor
 from PyQt5 import uic
-from PyQt5.QtCore import QThread, QTimer
+from PyQt5.QtCore import QThread, QTimer, pyqtSignal, pyqtSlot, Qt
 import flask
-from flask import Flask
+import json
+from fer import FER
+import cv2
+import numpy as np
 import sys
 import datetime
-import json
 
 PORT = 5000
 counter = 0
@@ -73,6 +75,52 @@ class FlaskThread(QThread):
         self._run_flag = False
         self.wait()
         self.quit()
+
+
+class VideoThread(QThread):
+    change_pixmap_signal = pyqtSignal(np.ndarray)
+    detector = FER()
+
+    def __init__(self, widget):
+        super().__init__()
+        self._run_flag = True
+        self.activeApp = widget
+
+    def run(self):
+        # capture from webcam
+        cap = cv2.VideoCapture(0)
+        global updated
+        # SEMAPHORE ATTEMPT
+        # global updated
+        while self._run_flag:
+            ret, cv_img = cap.read()
+            if ret and updated:
+                # SEMAPHORE ATTEMPT
+                updated = False
+
+                # Tell other thread to update image
+                self.change_pixmap_signal.emit(cv_img)
+                emotion, score = self.detector.top_emotion(cv_img)
+                # DEBUG
+                # print(emotion)
+                if emotion and self.activeApp.new_emotion(emotion):
+                    # DEBUG
+                    # print(emotion)
+                    self.activeApp.set_emotion_label(emotion)
+                elif not emotion and self.activeApp.new_emotion("No Emotion Detected"):
+                    # DEBUG
+                    # print("No Face Detected")
+                    self.activeApp.set_emotion_label("No Emotion Detected")
+                else:
+                    # nothing happens, there isn't anything to update
+                    pass
+        # shut down capture system
+        cap.release()
+
+    def stop(self):
+        """Sets run flag to False and waits for thread to finish"""
+        self._run_flag = False
+        self.wait()
 
 class App(QWidget):
     feedback = [{"Default0": "You are cool"}, {"Default2": "I like your face"}]
@@ -206,6 +254,15 @@ class App(QWidget):
 
     def end_timer(self):
         self.timer.stop()
+
+    def convert_cv_qt(self, cv_img):
+        """Convert from an opencv image to QPixmap"""
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(self.width, self.height, Qt.KeepAspectRatio)
+        return QPixmap.fromImage(p)
 
     def closeEvent(self, event):
         flaskThread.stop()
