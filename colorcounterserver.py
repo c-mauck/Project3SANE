@@ -88,6 +88,7 @@ class App(QWidget):
         self.UI.image_label.setPixmap(grey)
         self.UI.stopButton.clicked.connect(self.end_speech)
         self.UI.startButton.clicked.connect(self.start_speech)
+        self.UI.pushButton.clicked.connect(self.change_set_times)
 
     def setcountlabel(self, num):
         numtext = str(num)
@@ -119,17 +120,19 @@ class App(QWidget):
 
     def change_set_times(self):
         """Get settings for the time change page"""
+        print("Trying to change set times")
         if len(self.UI.min_time_edit.text()) > 0:
             text = self.UI.min_time_edit.text()
+            print(text)
             seconds = self.get_sec(text)
             self.speechMin = seconds
             self.UI.min_time_edit.clear()
 
-    def get_sec(time_str):
+    def get_sec(self, time_str):
         """Get seconds from time."""
         h, m, s = time_str.split(':')
         print(int(datetime.timedelta(hours=int(h), minutes=int(m), seconds=int(s)).total_seconds()))
-
+        return int(datetime.timedelta(hours=int(h), minutes=int(m), seconds=int(s)).total_seconds())
 
     def timer_timeout(self):
         self.running_time += 1
