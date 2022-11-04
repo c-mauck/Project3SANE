@@ -16,10 +16,14 @@ ROOT_URL = 'http://localhost:{}'.format(PORT)
 class FlaskThread(QThread):
     app = flask.Flask(__name__)
     app.config["DEBUG"] = False
+    _run_flag = True
 
     def run(self):
         global PORT
         self.app.run(port=PORT, host="0.0.0.0")
+        while self._run_flag:
+            pass
+        return
 
     @app.route("/", methods=['GET'])
     def Home():
@@ -64,6 +68,11 @@ class FlaskThread(QThread):
         print(App.feedback)
         return flask.jsonify({'id': identifier, 'message': strtopass})
 
+    def stop(self):
+        """Sets run flag to False and waits for thread to finish"""
+        self._run_flag = False
+        self.wait()
+        self.quit()
 
 class App(QWidget):
     feedback = [{"Default0": "You are cool"}, {"Default2": "I like your face"}]
@@ -89,6 +98,9 @@ class App(QWidget):
         self.UI.stopButton.clicked.connect(self.end_speech)
         self.UI.startButton.clicked.connect(self.start_speech)
         self.UI.pushButton.clicked.connect(self.change_set_times)
+
+    def setFlask(self, flask):
+        self.f_thread = flask
 
     def setcountlabel(self, num):
         numtext = str(num)
@@ -195,11 +207,16 @@ class App(QWidget):
     def end_timer(self):
         self.timer.stop()
 
+    def closeEvent(self, event):
+        flaskThread.stop()
+        event.accept()
+
 
 if __name__ == "__main__":
     qtApp = QApplication(sys.argv)
     a = App()
     flaskThread = FlaskThread(a)
+    a.setFlask(flaskThread)
     flaskThread.start()
     a.settextlabel("0:00")
     a.setcountlabel(0)
