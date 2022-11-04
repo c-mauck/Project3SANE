@@ -5,7 +5,7 @@ from PyQt5.QtCore import QThread, QTimer
 import flask
 from flask import Flask
 import sys
-import time, datetime
+import datetime
 import json
 
 PORT = 5000
@@ -23,7 +23,7 @@ class FlaskThread(QThread):
 
     @app.route("/", methods=['GET'])
     def Home():
-        return flask.jsonify({"connection":"successful"})
+        return flask.jsonify({"connection": "successful"})
 
     @app.route("/<name>", methods=['GET'])
     def entry(name):
@@ -87,6 +87,7 @@ class App(QWidget):
         self.UI.image_label.setText("Text message")
         self.UI.image_label.setPixmap(grey)
         self.UI.stopButton.clicked.connect(self.end_speech)
+        self.UI.startButton.clicked.connect(self.start_speech)
 
     def setcountlabel(self, num):
         numtext = str(num)
@@ -94,7 +95,7 @@ class App(QWidget):
 
     def settextlabel(self, string):
         strtext = str(string)
-        self.UI.textLabel2.setText(strtext)
+        self.UI.textLabel2.setText("Timer: " + strtext)
 
     def start_speech(self):
         self.start_timer()
@@ -108,18 +109,33 @@ class App(QWidget):
         dt_string = now.strftime("%b-%d-%Y %H:%M:%S")
         f = open((new_file + ".txt"), "w+")
         f.write(speechandname + "\r\n")
+        f.write(dt_string + "\r\n")
         f.write("Final " + self.UI.textLabel2.text() + "\n")
         f.write("======= Feedback =======\n")
         output = (json.dumps(self.feedback))
         f.write(output)
         f.close()
-        self.endTimer()
+        self.end_timer()
+
+    def change_set_times(self):
+        """Get settings for the time change page"""
+        if len(self.UI.min_time_edit.text()) > 0:
+            text = self.UI.min_time_edit.text()
+            seconds = self.get_sec(text)
+            self.speechMin = seconds
+            self.UI.min_time_edit.clear()
+
+    def get_sec(time_str):
+        """Get seconds from time."""
+        h, m, s = time_str.split(':')
+        print(int(datetime.timedelta(hours=int(h), minutes=int(m), seconds=int(s)).total_seconds()))
+
 
     def timer_timeout(self):
         self.running_time += 1
         num = self.running_time
         seconds = num % 60
-        if num > 60:
+        if num >= 60:
             minutes = (num - (num % 60))/60
         else:
             minutes = 0
@@ -147,9 +163,9 @@ class App(QWidget):
             print("undertime")
 
         if seconds < 10:
-            current_time = ("Timer: " + str(int(minutes)) + ":0" + str(seconds))
+            current_time = (str(int(minutes)) + ":0" + str(seconds))
         else:
-            current_time = ("Timer: " + str(int(minutes)) + ":" + str(seconds))
+            current_time = (str(int(minutes)) + ":" + str(seconds))
         self.settextlabel(current_time)
 
     def start_timer(self):
@@ -167,6 +183,7 @@ if __name__ == "__main__":
     a = App()
     flaskThread = FlaskThread(a)
     flaskThread.start()
-    a.UI.textLabel.setText(str(counter))
+    a.settextlabel("0:00")
+    a.setcountlabel(0)
     a.UI.show()
     sys.exit(qtApp.exec_())
